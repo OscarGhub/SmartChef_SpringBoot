@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/receta")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://springboot-smartchef.onrender.com")
+@CrossOrigin(origins = "https://angular-smartchef.onrender.com")
 public class RecetaController {
 
     private final RecetaService service;

@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/colecciones")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://springboot-smartchef.onrender.com")
+@CrossOrigin(origins = "https://angular-smartchef.onrender.com")
 public class ColeccionController {
 
     private final ColeccionService service;

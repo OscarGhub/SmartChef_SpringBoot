@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/inventario")
-@CrossOrigin(origins = "https://springboot-smartchef.onrender.com")
+@CrossOrigin(origins = "https://angular-smartchef.onrender.com")
 @RequiredArgsConstructor
 public class InventarioController {
 
