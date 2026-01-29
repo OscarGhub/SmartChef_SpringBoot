@@ -10,7 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/preferencias")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "https://springboot-smartchef.onrender.com")
 public class PreferenciaController {
 
     private final PreferenciaService service;
