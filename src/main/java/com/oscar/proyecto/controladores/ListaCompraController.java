@@ -65,4 +65,9 @@ public class ListaCompraController {
                                                        @PathVariable Integer idReceta) {
         return ResponseEntity.ok(service.recetaEstaEnCarrito(idUsuario, idReceta));
     }
+
+    @GetMapping("/usuario/{idUsuario}/ingredientes")
+    public ResponseEntity<List<ListaCompraIngredienteDTO>> obtenerIngredientesPorUsuario(@PathVariable Integer idUsuario) {
+        return ResponseEntity.ok(service.obtenerIngredientesPorUsuario(idUsuario));
+    }
 }
