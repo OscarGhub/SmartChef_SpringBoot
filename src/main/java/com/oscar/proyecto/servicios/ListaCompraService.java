@@ -9,6 +9,7 @@ import com.oscar.proyecto.modelos.*;
 import com.oscar.proyecto.repositorios.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,6 +26,7 @@ public class ListaCompraService {
     private final IngredienteRepository ingredienteRepository;
     private final RecetaIngredienteRepository recetaIngredienteRepository;
     private final ListaCompraMapper listaCompraMapper;
+    private final UsuarioRepository usuarioRepository;
 
     public ListaCompraResponseDTO crearListaCompra(ListaCompraRequestDTO request) {
         ListaCompra listaCompra = new ListaCompra();
@@ -96,12 +98,14 @@ public class ListaCompraService {
         return listaCompraMapper.toListaCompraIngredienteDTOList(ingredientes);
     }
 
+    @Transactional
     public void anadirRecetaAlCarrito(Integer idUsuario, Integer idReceta) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new ElementoNoEncontradoException("El usuario con ID " + idUsuario + " no existe en Render."));
+
         ListaCompra listaCompra = listaCompraRepository.findByUsuarioId(idUsuario)
                 .orElseGet(() -> {
                     ListaCompra nuevaLista = new ListaCompra();
-                    Usuario usuario = new Usuario();
-                    usuario.setId(idUsuario);
                     nuevaLista.setUsuario(usuario);
                     nuevaLista.setFecha_creacion(LocalDate.now());
                     return listaCompraRepository.save(nuevaLista);
@@ -109,10 +113,12 @@ public class ListaCompraService {
 
         List<RecetaIngrediente> ingredientesReceta = recetaIngredienteRepository.findByRecetaIdEagerly(idReceta);
 
-        for (RecetaIngrediente ri : ingredientesReceta) {
+        if (ingredientesReceta.isEmpty()) {
+            throw new ElementoNoEncontradoException("La receta " + idReceta + " no tiene ingredientes o no existe.");
+        }
 
+        for (RecetaIngrediente ri : ingredientesReceta) {
             if (ri.getIngrediente() == null) {
-                System.err.println("ERROR: El ingrediente está nulo en la receta " + idReceta + ". Saltando.");
                 continue;
             }
 
@@ -124,18 +130,13 @@ public class ListaCompraService {
             ListaCompraIngrediente listaIngrediente = listaCompraIngredienteRepository.findById(listaIngredienteId)
                     .orElse(new ListaCompraIngrediente());
 
-
             Double cantidadActual = (listaIngrediente.getCantidad() != null) ? listaIngrediente.getCantidad() : 0.0;
-
-            Double cantidadAReceta = ri.getCantidad();
-
-            Double nuevaCantidad = cantidadActual + cantidadAReceta;
+            Double cantidadAReceta = (ri.getCantidad() != null) ? ri.getCantidad() : 0.0;
 
             listaIngrediente.setId(listaIngredienteId);
             listaIngrediente.setListaCompra(listaCompra);
             listaIngrediente.setIngrediente(ri.getIngrediente());
-
-            listaIngrediente.setCantidad(nuevaCantidad);
+            listaIngrediente.setCantidad(cantidadActual + cantidadAReceta);
 
             listaCompraIngredienteRepository.save(listaIngrediente);
         }
