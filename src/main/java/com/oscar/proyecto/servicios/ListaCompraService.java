@@ -101,12 +101,13 @@ public class ListaCompraService {
     @Transactional
     public void anadirRecetaAlCarrito(Integer idUsuario, Integer idReceta) {
         Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new ElementoNoEncontradoException("El usuario con ID " + idUsuario + " no existe en Render."));
+                .orElseThrow(() -> new ElementoNoEncontradoException("Usuario ID " + idUsuario + " no encontrado."));
 
         ListaCompra listaCompra = listaCompraRepository.findByUsuarioId(idUsuario)
                 .orElseGet(() -> {
                     ListaCompra nuevaLista = new ListaCompra();
                     nuevaLista.setUsuario(usuario);
+                    // Asegúrate de que el método sea setFechaCreacion (Java cammelCase)
                     nuevaLista.setFecha_creacion(LocalDate.now());
                     return listaCompraRepository.save(nuevaLista);
                 });
@@ -114,13 +115,11 @@ public class ListaCompraService {
         List<RecetaIngrediente> ingredientesReceta = recetaIngredienteRepository.findByRecetaIdEagerly(idReceta);
 
         if (ingredientesReceta.isEmpty()) {
-            throw new ElementoNoEncontradoException("La receta " + idReceta + " no tiene ingredientes o no existe.");
+            throw new ElementoNoEncontradoException("La receta con ID " + idReceta + " no existe o está vacía.");
         }
 
         for (RecetaIngrediente ri : ingredientesReceta) {
-            if (ri.getIngrediente() == null) {
-                continue;
-            }
+            if (ri.getIngrediente() == null) continue;
 
             ListaCompraIngredienteId listaIngredienteId = new ListaCompraIngredienteId(
                     listaCompra.getId(),
@@ -128,15 +127,19 @@ public class ListaCompraService {
             );
 
             ListaCompraIngrediente listaIngrediente = listaCompraIngredienteRepository.findById(listaIngredienteId)
-                    .orElse(new ListaCompraIngrediente());
+                    .orElseGet(() -> {
+                        ListaCompraIngrediente nuevoItem = new ListaCompraIngrediente();
+                        nuevoItem.setId(listaIngredienteId);
+                        nuevoItem.setListaCompra(listaCompra);
+                        nuevoItem.setIngrediente(ri.getIngrediente());
+                        nuevoItem.setCantidad(0.0); // Inicializamos a 0
+                        return nuevoItem;
+                    });
 
-            Double cantidadActual = (listaIngrediente.getCantidad() != null) ? listaIngrediente.getCantidad() : 0.0;
-            Double cantidadAReceta = (ri.getCantidad() != null) ? ri.getCantidad() : 0.0;
+            double cantidadActual = (listaIngrediente.getCantidad() != null) ? listaIngrediente.getCantidad() : 0.0;
+            double cantidadNueva = (ri.getCantidad() != null) ? ri.getCantidad() : 0.0;
 
-            listaIngrediente.setId(listaIngredienteId);
-            listaIngrediente.setListaCompra(listaCompra);
-            listaIngrediente.setIngrediente(ri.getIngrediente());
-            listaIngrediente.setCantidad(cantidadActual + cantidadAReceta);
+            listaIngrediente.setCantidad(cantidadActual + cantidadNueva);
 
             listaCompraIngredienteRepository.save(listaIngrediente);
         }
@@ -232,15 +235,12 @@ public class ListaCompraService {
     }
 
     public List<ListaCompraIngredienteDTO> obtenerIngredientesPorUsuario(Integer idUsuario) {
-        Optional<ListaCompra> listaOptional = listaCompraRepository.findByUsuarioId(idUsuario);
-
-        if (listaOptional.isEmpty()) {
-            return List.of();
-        }
-
-        Integer idLista = listaOptional.get().getId();
-
-        return this.obtenerIngredientes(idLista);
+        return listaCompraRepository.findByUsuarioId(idUsuario)
+                .map(lista -> {
+                    List<ListaCompraIngrediente> ingredientes = listaCompraIngredienteRepository.findByListaCompra(lista);
+                    return listaCompraMapper.toListaCompraIngredienteDTOList(ingredientes);
+                })
+                .orElse(List.of());
     }
 
 }
