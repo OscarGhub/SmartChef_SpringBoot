@@ -10,7 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/preferencias")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://angular-smartchef.onrender.com")
+@CrossOrigin(origins = {"https://angular-smartchef.onrender.com", "http://localhost:8100"})
 public class PreferenciaController {
 
     private final PreferenciaService service;

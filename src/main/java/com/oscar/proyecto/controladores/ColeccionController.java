@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/colecciones")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://angular-smartchef.onrender.com")
+@CrossOrigin(origins = {"https://angular-smartchef.onrender.com", "http://localhost:8100"})
 public class ColeccionController {
 
     private final ColeccionService service;

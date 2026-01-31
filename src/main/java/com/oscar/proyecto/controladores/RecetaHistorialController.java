@@ -11,7 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/historial")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://angular-smartchef.onrender.com")
+@CrossOrigin(origins = {"https://angular-smartchef.onrender.com", "http://localhost:8100"})
 public class RecetaHistorialController {
 
     private final RecetaCocinadaFechaService recetaCocinadaFechaService;

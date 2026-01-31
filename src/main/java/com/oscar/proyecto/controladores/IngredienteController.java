@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/ingrediente")
-@CrossOrigin(origins = "https://angular-smartchef.onrender.com")
+@CrossOrigin(origins = {"https://angular-smartchef.onrender.com", "http://localhost:8100"})
 @RequiredArgsConstructor
 public class IngredienteController {
 

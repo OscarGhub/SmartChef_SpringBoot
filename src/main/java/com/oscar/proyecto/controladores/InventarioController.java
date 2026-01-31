@@ -14,15 +14,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/inventario")
-@CrossOrigin(origins = "https://angular-smartchef.onrender.com")
+@CrossOrigin(origins = {"https://angular-smartchef.onrender.com", "http://localhost:8100"})
 @RequiredArgsConstructor
 public class InventarioController {
 
     private final InventarioService service;
 
-    @PostMapping
-    public ResponseEntity<InventarioResponseDTO> crearInventarioParaUsuario(@RequestBody InventarioRequestDTO request) {
-        Inventario inventario = service.crearInventarioParaUsuarioPorId(request.getUsuarioId());
+    @PostMapping("/usuario/{usuarioId}")
+    public ResponseEntity<InventarioResponseDTO> crearInventarioParaUsuario(@PathVariable Integer usuarioId) {
+        Inventario inventario = service.crearInventarioParaUsuarioPorId(usuarioId);
         return ResponseEntity.ok(new InventarioResponseDTO(inventario.getId(), inventario.getUsuario().getId()));
     }
 
