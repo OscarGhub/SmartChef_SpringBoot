@@ -29,14 +29,14 @@ public class ListaCompraService {
     private final UsuarioRepository usuarioRepository;
 
     public ListaCompraResponseDTO crearListaCompra(ListaCompraRequestDTO request) {
+        Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
+                .orElseThrow(() -> new ElementoNoEncontradoException("Usuario no encontrado"));
+
         ListaCompra listaCompra = new ListaCompra();
-        Usuario usuario = new Usuario();
-        usuario.setId(request.getIdUsuario());
         listaCompra.setUsuario(usuario);
         listaCompra.setFecha_creacion(LocalDate.now());
 
         ListaCompra guardada = listaCompraRepository.save(listaCompra);
-
         return listaCompraMapper.toListaCompraResponseDTO(guardada);
     }
 
@@ -107,7 +107,6 @@ public class ListaCompraService {
                 .orElseGet(() -> {
                     ListaCompra nuevaLista = new ListaCompra();
                     nuevaLista.setUsuario(usuario);
-                    // Asegúrate de que el método sea setFechaCreacion (Java cammelCase)
                     nuevaLista.setFecha_creacion(LocalDate.now());
                     return listaCompraRepository.save(nuevaLista);
                 });
